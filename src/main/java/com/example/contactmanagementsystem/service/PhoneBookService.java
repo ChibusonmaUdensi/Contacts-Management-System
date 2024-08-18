@@ -1,16 +1,12 @@
 package com.example.contactmanagementsystem.service;
-import com.example.contactmanagementsystem.data.dto.RequestContactDto;
-import com.example.contactmanagementsystem.data.dto.RequestPhoneBookDto;
-import com.example.contactmanagementsystem.data.model.Contact;
 import com.example.contactmanagementsystem.data.model.PhoneBook;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+@Service
 public interface PhoneBookService {
 
-    PhoneBook savePhoneBook(RequestPhoneBookDto requestPhoneBookDto);
-    boolean removePhoneBook(Long id);
-    List<PhoneBook> findAllPhoneBooks();
-    PhoneBook findPhoneBookById(Long id);
-    PhoneBook updatePhoneBook(RequestPhoneBookDto requestPhoneBookDto);
+    PhoneBook createPhoneBook();
+    String deletePhonebook (String id);
+    PhoneBook findPhoneBookById(String id);
+
 }

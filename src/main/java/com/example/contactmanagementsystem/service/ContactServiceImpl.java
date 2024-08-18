@@ -1,20 +1,16 @@
 package com.example.contactmanagementsystem.service;
 import com.example.contactmanagementsystem.data.dto.RequestContactDto;
 import com.example.contactmanagementsystem.data.model.Contact;
-import com.example.contactmanagementsystem.utils.GenerateId;
 import com.example.contactmanagementsystem.data.model.PhoneBook;
 import com.example.contactmanagementsystem.data.repository.ContactRepository;
-//import com.example.contactmanagementsystem.data.repository.PhoneBookRepository;
 import com.example.contactmanagementsystem.data.repository.PhoneBookRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,49 +20,36 @@ public class ContactServiceImpl implements ContactService {
     @Autowired
     private ContactRepository contactRepository;
     @Autowired
-   private PhoneBookRepository repository;
+   private PhoneBookRepository phoneBookRepository;
 
-    private GenerateId generateId;
+    PhoneBook createdPhoneBook = new PhoneBook();
+
     @Override
-    public Contact saveContact(RequestContactDto requestContactDto) {
+    public Contact createContact(RequestContactDto requestContactDto) {
+        findByEmail(requestContactDto.getEmail());
+        findByPhoneNumber(requestContactDto.getPhoneNumber());
             Contact contact = new Contact();
-            contact.setId(GenerateId.generateId(new Random()));
             contact.setFirstName(requestContactDto.getFirstName());
             contact.setLastName(requestContactDto.getLastName());
             contact.setAddress(requestContactDto.getAddress());
             contact.setPhoneNumber(requestContactDto.getPhoneNumber());
             contact.setEmail(requestContactDto.getEmail());
-
-        Optional<PhoneBook> phone = repository.findById(requestContactDto.getPhoneBookId());
-        if (phone.isPresent()){
-            PhoneBook phoneBook1 = phone.get();
-            phoneBook1.getContacts();
-
-            if (phoneBook1.getContacts() != null && !phoneBook1.getContacts().isEmpty()) {
-                phoneBook1.getContacts().add(contact);
-            }
-
             contactRepository.save(contact);
-            repository.save(phoneBook1);
-        }
-        else {
-            throw  new RuntimeException("PhoneBook doesn't exist");
-        }
-
+            createdPhoneBook.addContact(contact);
            return contact;
+
         }
-
-
 
     @Override
-    public String deleteContact(Long id) {
+    public String deleteContact(String id) {
         Optional<Contact> contact = contactRepository.findById(id);
         if (contact.isPresent()) {
             contactRepository.delete(contact.get());
             System.out.println("Contact deleted");
             return "Contact deleted";
-        } else
-            return "Contact not found";
+        } else {
+            throw new NullPointerException("Contact does not exist");
+        }
     }
 
     @Override
@@ -76,7 +59,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Contact findContactById(Long id) {
+    public Contact findContactById(String id) {
         Optional<Contact> findContact = contactRepository.findById(id);
         if (findContact.isPresent()) {
             return findContact.get();
@@ -96,8 +79,29 @@ public class ContactServiceImpl implements ContactService {
             contactToUpdate.setAddress(requestContactDto.getAddress());
             return contactRepository.save(contactToUpdate);
         } else {
-            throw new RuntimeException("Contact Not Found");
+            throw new RuntimeException("Contact Not Found fishpieeeeeeeeee");
 
         }
+    }
+
+    @Override
+    public Contact findContactsByName(String name) {
+        Optional<Contact> names = contactRepository.findByFirstName(name);
+        if (names.isPresent()) {
+            return names.get();
+
+        } else {
+            throw new NullPointerException();
+        }
+
+    }
+
+    private void findByEmail(String email){
+      Optional<Contact> contact = contactRepository.findByEmail(email);
+      if(contact.isPresent()) throw new RuntimeException("Email Address already exists");
+    }
+    private void findByPhoneNumber(String phoneNumber){
+        Optional<Contact> number = contactRepository.findByPhoneNumber(phoneNumber);
+        if(number.isPresent()) throw new RuntimeException("PhoneNumber already exists");
     }
 }
